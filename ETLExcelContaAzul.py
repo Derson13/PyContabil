@@ -1,7 +1,7 @@
 from Biblioteca import Database
 from datetime import datetime
 import pandas as pd
-import sys
+import shutil
 import os
 
 table = 'tbl_excel_contaazul'
@@ -35,17 +35,25 @@ def tratarDf(df):
     return df_final
 
 def start(direx):
-    arquivos_xlsx = [arquivo for arquivo in os.listdir(direx) if arquivo.endswith('.xlsx')]
+    arquivos_xlsx = [arquivo for arquivo in os.listdir(direx) if arquivo.endswith('.xlsx')]    
     for arquivo in arquivos_xlsx:
-        caminho_arquivo = os.path.join(direx, arquivo)
-        df = pd.read_excel(caminho_arquivo, header=[0, 1])
-        df_final = tratarDf(df)
+        try:
+            caminho_arquivo = os.path.join(direx, arquivo)
+            df = pd.read_excel(caminho_arquivo, header=[0, 1])
+            df_final = tratarDf(df)
 
-        df_final.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        df_final.insert(1, 'arquivo', arquivo)
-        df_final['data_import'] = pd.to_datetime(df_final['data_import'])
+            df_final.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            df_final.insert(1, 'arquivo', arquivo)
+            df_final['data_import'] = pd.to_datetime(df_final['data_import'])
+            
+            dfToSql(df=df_final,table=table,is_increment=True)
+            print('Arquivo importado no SQL com sucesso! ', arquivo)
+                # Mover o arquivo para a pasta sucesso
+            shutil.move(caminho_arquivo, os.path.join(direx + 'sucesso\\', arquivo))
+        except:
+            print('Erro ao importar o arquivo! ', arquivo)
+
+            # Mover o arquivo para a pasta erro
+            shutil.move(caminho_arquivo, os.path.join(direx + 'erro\\', arquivo))
         
-        dfToSql(df=df_final,table=table,is_increment=True)
-        print('Arquivo importador no SQL com sucesso! ', arquivo)
-
 start(direx)
