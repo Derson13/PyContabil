@@ -4,7 +4,7 @@ import pandas as pd
 import shutil
 import os
 
-table = 'tbl_excel_contaazul'
+table = 'tbl_excel_conta_azul'
 direx = '.\\Arquivos\\Excel\\ContaAzul\\'
 
 def dfToSql(df,table,is_increment): 
@@ -24,7 +24,7 @@ def tratarDf(df):
             
         else:
             df_metricas = pd.DataFrame({
-                'ano_mes':mes,
+                'ano_mes_':mes,
                 'metrica':col,
                 'valor': df[coluna]
             })
@@ -50,9 +50,10 @@ def start(direx):
             print('Arquivo importado no SQL com sucesso! ', arquivo)
                 # Mover o arquivo para a pasta sucesso
             shutil.move(caminho_arquivo, os.path.join(direx + 'sucesso\\', arquivo))
-        except:
-            print('Erro ao importar o arquivo! ', arquivo)
-
+        
+        except Exception as e:
+            print('### Erro ao importar o arquivo! ', arquivo)
+            print(e)            
             # Mover o arquivo para a pasta erro
             shutil.move(caminho_arquivo, os.path.join(direx + 'erro\\', arquivo))
         
