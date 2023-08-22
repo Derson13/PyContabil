@@ -6,6 +6,7 @@ import os
 
 tplan = 'tbl_excel_plano_contas'
 tpsub = 'tbl_excel_plano_contas_subgrupo'
+tpmrg = 'tbl_excel_plano_contas_margem_contrib'
 direx = '.\\Arquivos\\Excel\\PlanoDeContas\\'
 
 def dfToSql(df,table,is_increment): 
@@ -28,7 +29,7 @@ def start(direx):
             df_plano.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             df_plano.insert(1, 'arquivo', arquivo)
             df_plano['data_import'] = pd.to_datetime(df_plano['data_import'])            
-            dfToSql(df=df_plano,table=tpsub,is_increment=True)            
+            dfToSql(df=df_plano,table=tpmrg,is_increment=True)            
 
             df_plano = pd.read_excel(caminho_arquivo, sheet_name='PlanoDeContasSubGrupo', header=[0])
             df_plano.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
