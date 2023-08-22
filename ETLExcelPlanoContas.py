@@ -4,7 +4,8 @@ import pandas as pd
 import shutil
 import os
 
-table = 'tbl_excel_plano_contas'
+tplan = 'tbl_excel_plano_contas'
+tpsub = 'tbl_excel_plano_contas_subgrupo'
 direx = '.\\Arquivos\\Excel\\PlanoDeContas\\'
 
 def dfToSql(df,table,is_increment): 
@@ -16,22 +17,31 @@ def start(direx):
     for arquivo in arquivos_xlsx:
         try:
             caminho_arquivo = os.path.join(direx, arquivo)
-            df_final = pd.read_excel(caminho_arquivo, header=[0])
-
-            df_final.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            df_final.insert(1, 'arquivo', arquivo)
-            df_final['data_import'] = pd.to_datetime(df_final['data_import'])
             
-            dfToSql(df=df_final,table=table,is_increment=True)
-            print('Arquivo importado no SQL com sucesso! ', arquivo)
-                # Mover o arquivo para a pasta sucesso
+            df_plano = pd.read_excel(caminho_arquivo, sheet_name='PlanoDeContas', header=[0])
+            df_plano.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            df_plano.insert(1, 'arquivo', arquivo)
+            df_plano['data_import'] = pd.to_datetime(df_plano['data_import'])            
+            dfToSql(df=df_plano,table=tplan,is_increment=True)
+             
+            df_plano = pd.read_excel(caminho_arquivo, sheet_name='PlanoDeContasMargemContrib', header=[0])
+            df_plano.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            df_plano.insert(1, 'arquivo', arquivo)
+            df_plano['data_import'] = pd.to_datetime(df_plano['data_import'])            
+            dfToSql(df=df_plano,table=tpsub,is_increment=True)            
+
+            df_plano = pd.read_excel(caminho_arquivo, sheet_name='PlanoDeContasSubGrupo', header=[0])
+            df_plano.insert(0, 'data_import', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            df_plano.insert(1, 'arquivo', arquivo)
+            df_plano['data_import'] = pd.to_datetime(df_plano['data_import'])            
+            dfToSql(df=df_plano,table=tpsub,is_increment=True)    
+
+            print('Arquivo importado no SQL com sucesso! ', arquivo)            
             shutil.move(caminho_arquivo, os.path.join(direx + 'sucesso\\', arquivo))
 
         except Exception as e:
             print('### Erro ao importar o arquivo! ', arquivo)
             print(e)
-
-            # Mover o arquivo para a pasta erro
             shutil.move(caminho_arquivo, os.path.join(direx + 'erro\\', arquivo))
         
 start(direx)
